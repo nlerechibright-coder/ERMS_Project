@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Edit Product | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 1b template -->
+<div class="mx-auto max-w-4xl space-y-6">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-900">Edit Product</h1>
+    <p class="mt-1 text-sm text-slate-500">Update product details, units and prices. Stock is changed through Goods Received or stock movements.</p>
+  </div>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {% csrf_token %}
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Product name</label>
+        <input type="text" name="name" value="{{ product.name }}" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">SKU / product code</label>
+        <input type="text" name="sku" value="{{ product.sku }}" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Category</label>
+        <select name="category" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+          <option value="">No category</option>
+          {% for category in categories %}
+            <option value="{{ category.pk }}" {% if category.pk == product.category_id %}selected{% endif %}>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Barcode</label>
+        <input type="text" name="barcode" value="{{ product.barcode }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Brand</label>
+        <input type="text" name="brand" value="{{ product.brand }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Stock unit</label>
+        <input type="text" name="stock_unit" value="{{ product.stock_unit }}" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Purchase unit</label>
+        <input type="text" name="purchase_unit" value="{{ product.purchase_unit }}" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Stock units per purchase unit</label>
+        <input type="number" name="units_per_purchase_unit" value="{{ product.units_per_purchase_unit|floatformat:-3 }}" step="0.001" min="0.001" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Retail price per stock unit</label>
+        <input type="number" name="unit_price" value="{{ product.unit_price|floatformat:2 }}" step="0.01" min="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Wholesale price per stock unit</label>
+        <input type="number" name="wholesale_price" value="{{ product.wholesale_price|floatformat:2 }}" step="0.01" min="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Reorder level</label>
+        <input type="number" name="reorder_level" value="{{ product.reorder_level|floatformat:-3 }}" step="0.001" min="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div class="flex items-end">
+        <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input type="checkbox" name="is_active" {% if product.is_active %}checked{% endif %} class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500">
+          Active
+        </label>
+      </div>
+      <div class="md:col-span-2 lg:col-span-3">
+        <label class="mb-1 block text-sm font-medium text-slate-700">Description</label>
+        <textarea name="description" rows="4" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">{{ product.description }}</textarea>
+      </div>
+      <div class="md:col-span-2 lg:col-span-3 flex gap-3">
+        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save Changes</button>
+        <a href="{% url 'product_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

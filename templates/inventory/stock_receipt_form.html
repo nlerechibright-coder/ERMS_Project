@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Receive Goods | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 1b template -->
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-900">Receive Goods</h1>
+      <p class="mt-1 text-sm text-slate-500">Record purchases in purchase units. The system converts them to sellable stock units and updates cost.</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'stock_receipt_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">View Receipts</a>
+      <a href="{% url 'product_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Back to Inventory</a>
+    </div>
+  </div>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Supplier</label>
+          <select name="supplier" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+            <option value="">No supplier (optional)</option>
+            {% for supplier in suppliers %}
+              <option value="{{ supplier.pk }}">{{ supplier.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Receipt date</label>
+          <input type="date" name="receipt_date" value="{% now "Y-m-d" %}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Invoice reference</label>
+          <input type="text" name="invoice_reference" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Notes</label>
+        <textarea name="notes" rows="2" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"></textarea>
+      </div>
+
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table id="receipt-lines" class="min-w-full divide-y divide-slate-200 text-left text-sm">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th class="px-4 py-3">Product</th>
+              <th class="px-4 py-3">Purchase quantity</th>
+              <th class="px-4 py-3">Cost per purchase unit</th>
+              <th class="px-4 py-3">Conversion</th>
+              <th class="px-4 py-3">Expected stock added</th>
+              <th class="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700">
+            <tr>
+              <td class="px-4 py-3">
+                <select name="product" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+                  <option value="">Select product...</option>
+                  {% for product in products %}
+                    <option value="{{ product.pk }}" data-conv="{{ product.units_per_purchase_unit }}" data-stock-unit="{{ product.stock_unit }}" data-purchase-unit="{{ product.purchase_unit }}">
+                      {{ product.name }} ({{ product.sku }})
+                    </option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td class="px-4 py-3">
+                <input type="number" name="purchase_quantity" step="0.001" min="0.001" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+              </td>
+              <td class="px-4 py-3">
+                <input type="number" name="cost_per_purchase_unit" step="0.01" min="0" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+              </td>
+              <td class="conversion-help px-4 py-3 text-sm text-slate-500">Select a product</td>
+              <td class="expected-stock px-4 py-3 font-medium text-slate-700">-</td>
+              <td class="px-4 py-3 text-right">
+                <button type="button" class="remove-line text-sm font-semibold text-rose-600 hover:text-rose-700">Remove</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button type="button" id="add-line" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Add Line</button>
+        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save Receipt and Update Stock</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script>
+(function () {
+  var table = document.getElementById('receipt-lines');
+  if (!table) return;
+  var tbody = table.querySelector('tbody');
+  var firstRow = tbody.querySelector('tr');
+
+  function updateRow(row) {
+    var sel = row.querySelector('select[name="product"]');
+    var qty = row.querySelector('input[name="purchase_quantity"]');
+    var help = row.querySelector('.conversion-help');
+    var expected = row.querySelector('.expected-stock');
+    var opt = sel.options[sel.selectedIndex];
+    var conv = parseFloat(opt.getAttribute('data-conv') || '0');
+    var stockUnit = opt.getAttribute('data-stock-unit') || '';
+    var purchaseUnit = opt.getAttribute('data-purchase-unit') || '';
+
+    if (!sel.value || isNaN(conv) || conv <= 0) {
+      help.textContent = 'Select a product';
+      expected.textContent = '-';
+      return;
+    }
+
+    help.textContent = conv + ' ' + stockUnit + ' per ' + purchaseUnit;
+    var q = parseFloat(qty.value || '0');
+    expected.textContent = (isNaN(q) || q <= 0) ? '-' : ((q * conv) + ' ' + stockUnit);
+  }
+
+  tbody.addEventListener('change', function (e) {
+    var row = e.target.closest('tr');
+    if (row) updateRow(row);
+  });
+
+  tbody.addEventListener('input', function (e) {
+    var row = e.target.closest('tr');
+    if (row) updateRow(row);
+  });
+
+  tbody.addEventListener('click', function (e) {
+    if (e.target.classList.contains('remove-line')) {
+      e.preventDefault();
+      if (tbody.querySelectorAll('tr').length > 1) {
+        e.target.closest('tr').remove();
+      } else {
+        alert('At least one line is required.');
+      }
+    }
+  });
+
+  document.getElementById('add-line').addEventListener('click', function (e) {
+    e.preventDefault();
+    var clone = firstRow.cloneNode(true);
+    clone.querySelector('select[name="product"]').selectedIndex = 0;
+    clone.querySelectorAll('input').forEach(function (inp) { inp.value = ''; });
+    clone.querySelector('.conversion-help').textContent = 'Select a product';
+    clone.querySelector('.expected-stock').textContent = '-';
+    tbody.appendChild(clone);
+  });
+
+  updateRow(firstRow);
+})();
+</script>
+{% endblock %}

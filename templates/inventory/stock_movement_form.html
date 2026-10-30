@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Add Stock Movement | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 1b template -->
+<div class="mx-auto max-w-3xl space-y-6">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-900">Add Stock Movement</h1>
+    <p class="mt-1 text-sm text-slate-500">Use this for manual corrections. For normal purchases, use Goods Received.</p>
+  </div>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {% csrf_token %}
+      <div class="md:col-span-2">
+        <label class="mb-1 block text-sm font-medium text-slate-700">Product</label>
+        <select name="product" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+          <option value="">Select product...</option>
+          {% for product in products %}
+            <option value="{{ product.pk }}">{{ product.name }} ({{ product.sku }}) — {{ product.current_stock|floatformat:-3 }} {{ product.stock_unit }} available</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Movement type</label>
+        <select name="movement_type" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+          <option value="IN">Receipt (add stock)</option>
+          <option value="OUT">Issue (remove stock)</option>
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Quantity</label>
+        <input type="number" name="quantity" step="0.001" min="0.001" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Reason</label>
+        <input type="text" name="reason" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Reference</label>
+        <input type="text" name="reference" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div class="md:col-span-2 flex gap-3">
+        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save Movement</button>
+        <a href="{% url 'stock_movement_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

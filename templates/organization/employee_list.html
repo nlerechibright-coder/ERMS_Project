@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Employees | ERMS{% endblock %}
+{% block content %}
+<section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+  <div class="border-b border-slate-200 px-6 py-5"><h1 class="text-xl font-semibold text-slate-900">Employees</h1><p class="mt-1 text-sm text-slate-500">People and employment status across the organization.</p></div>
+  <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500"><tr><th class="px-6 py-3">Name</th><th class="px-6 py-3">Department</th><th class="px-6 py-3">Position</th><th class="px-6 py-3">Status</th></tr></thead>
+    <tbody class="divide-y divide-slate-100 text-slate-700">{% for employee in employees %}<tr class="hover:bg-slate-50"><td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ employee.first_name }} {{ employee.last_name }}</td><td class="px-6 py-4">{{ employee.department.name|default:"Unassigned" }}</td><td class="px-6 py-4">{{ employee.position }}</td><td class="px-6 py-4">{{ employee.employment_status }}</td></tr>{% empty %}<tr><td class="px-6 py-8 text-center text-slate-500" colspan="4">No employees found.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}

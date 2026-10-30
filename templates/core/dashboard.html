@@ -1,0 +1,26 @@
+﻿{% extends 'base.html' %}
+{% block title %}Dashboard | ERMS{% endblock %}
+{% block content %}
+<div class="mb-8">
+  <h1 class="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+  <p class="mt-2 text-sm text-slate-500">An overview of activity across your organization.</p>
+</div>
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Active employees</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ active_employees }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Departments</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ department_count }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Products</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ product_count }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Low stock</p><p class="mt-2 text-3xl font-semibold text-amber-600">{{ low_stock }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Pending POs</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ pending_orders }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Pending expenses</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ pending_expenses }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Projects</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ active_projects }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Overdue tasks</p><p class="mt-2 text-3xl font-semibold text-red-600">{{ overdue_tasks }}</p></div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-medium text-slate-500">Sales total</p><p class="mt-2 text-3xl font-semibold text-slate-900">{{ sales_total }}</p></div>
+  </div>
+<section class="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <h2 class="text-lg font-semibold text-slate-900">Recent activity</h2>
+  <ul class="mt-4 divide-y divide-slate-100">
+    {% for event in recent_activity %}<li class="py-3 text-sm text-slate-600"><span class="font-medium text-slate-800">{{ event.action }}</span><span class="mt-1 block text-xs text-slate-400">{{ event.created_at }}</span></li>{% empty %}<li class="py-3 text-sm text-slate-500">No activity yet.</li>{% endfor %}
+  </ul>
+</section>
+{% include "core/_daily_sales_pending.html" %}
+{% endblock %}

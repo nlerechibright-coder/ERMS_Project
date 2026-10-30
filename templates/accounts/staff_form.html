@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{% if editing %}Edit Staff{% else %}Add Staff{% endif %} | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 2 staff -->
+<div class="mx-auto max-w-3xl space-y-6">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-900">{% if editing %}Edit Staff Account{% else %}Add Staff Account{% endif %}</h1>
+    <p class="mt-1 text-sm text-slate-500">Use Sales Staff for cashier/till users. Managers get full back-office access.</p>
+  </div>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="post" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {% csrf_token %}
+
+      {% if not editing %}
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Username</label>
+          <input type="text" name="username" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Password</label>
+          <input type="password" name="password" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+        </div>
+      {% endif %}
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">First name</label>
+        <input type="text" name="first_name" value="{{ staff.first_name|default:'' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Last name</label>
+        <input type="text" name="last_name" value="{{ staff.last_name|default:'' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Email</label>
+        <input type="email" name="email" value="{{ staff.email|default:'' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Phone</label>
+        <input type="text" name="phone" value="{{ profile.phone|default:'' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Role</label>
+        <select name="role" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          {% for value, label in role_choices %}
+            <option value="{{ value }}" {% if editing and profile.role == value %}selected{% elif not editing and value == 'sales_staff' %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Department / note</label>
+        <input type="text" name="department" value="{{ profile.department|default:'' }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </div>
+
+      {% if editing %}
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Reset password (optional)</label>
+          <input type="password" name="password" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Leave blank to keep current password">
+        </div>
+        <div class="flex items-end">
+          <label class="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
+            <input type="checkbox" name="is_active" {% if staff.is_active %}checked{% endif %} class="h-4 w-4 rounded border-slate-300">
+            Active
+          </label>
+        </div>
+      {% endif %}
+
+      <div class="md:col-span-2 flex gap-3 border-t border-slate-200 pt-5">
+        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save</button>
+        <a href="{% url 'staff_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

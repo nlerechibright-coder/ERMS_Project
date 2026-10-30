@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Product Categories | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 1b template -->
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-900">Product Categories</h1>
+      <p class="mt-1 text-sm text-slate-500">Group supermarket products for reporting and search.</p>
+    </div>
+    <a href="{% url 'product_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Back to Inventory</a>
+  </div>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-900">Add Category</h2>
+    <form method="post" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      {% csrf_token %}
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Category name</label>
+        <input type="text" name="name" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1 block text-sm font-medium text-slate-700">Description</label>
+        <input type="text" name="description" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+      </div>
+      <div class="md:col-span-3">
+        <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Save Category</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-6 py-3">Category</th>
+            <th class="px-6 py-3">Description</th>
+            <th class="px-6 py-3 text-right">Products</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          {% for category in categories %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-4 font-medium text-slate-900">{{ category.name }}</td>
+              <td class="px-6 py-4">{{ category.description|default:"-" }}</td>
+              <td class="px-6 py-4 text-right">{{ category.products.count }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="px-6 py-8 text-center text-slate-500">No categories found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

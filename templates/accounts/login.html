@@ -1,0 +1,13 @@
+﻿{% extends 'base.html' %}
+{% block title %}Login | ERMS{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+  <h1 class="mb-2 text-2xl font-bold tracking-tight text-slate-900">Welcome back</h1>
+  <p class="mb-6 text-sm text-slate-500">Sign in to your ERMS account.</p>
+  <form method="post" class="space-y-4 [&_input]:mt-1 [&_input]:w-full [&_input]:rounded-lg [&_input]:border [&_input]:border-slate-300 [&_input]:px-3 [&_input]:py-2 [&_input]:text-sm [&_input]:text-slate-900 [&_input]:shadow-sm [&_input]:outline-none [&_input]:focus:border-blue-500 [&_input]:focus:ring-2 [&_input]:focus:ring-blue-200 [&_label]:text-sm [&_label]:font-medium [&_label]:text-slate-700 [&_ul]:mt-1 [&_ul]:list-inside [&_ul]:list-disc [&_ul]:text-sm [&_ul]:text-red-600">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" type="submit">Sign in</button>
+  </form>
+</section>
+{% endblock %}

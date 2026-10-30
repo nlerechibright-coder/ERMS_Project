@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Checkout | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 2 POS -->
+<div class="mx-auto max-w-4xl space-y-6">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-900">Checkout</h1>
+    <p class="mt-1 text-sm text-slate-500">Confirm items, enter amount tendered, then complete the sale.</p>
+  </div>
+
+  <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-6 py-3">Product</th>
+            <th class="px-6 py-3">Qty</th>
+            <th class="px-6 py-3">Unit price</th>
+            <th class="px-6 py-3 text-right">Line total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          {% for line in lines %}
+            <tr>
+              <td class="px-6 py-4 font-medium text-slate-900">{{ line.product.name }}</td>
+              <td class="px-6 py-4">{{ line.quantity|floatformat:-3 }} {{ line.display_unit }}</td>
+              <td class="px-6 py-4">₦{{ line.unit_price|floatformat:2 }}</td>
+              <td class="px-6 py-4 text-right font-semibold">₦{{ line.line_total|floatformat:2 }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Cart is empty.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <form method="post" action="{% url 'pos_complete_sale' %}" id="checkout-form" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {% csrf_token %}
+      <input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Payment method</label>
+        <select name="payment_method" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+          {% for value, label in payment_methods %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">Amount tendered</label>
+        <input type="number" name="amount_tendered" value="{{ totals.grand_total|floatformat:2 }}" step="0.01" min="0" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+      </div>
+
+      <div class="md:col-span-2 flex items-center justify-between border-t border-slate-200 pt-5">
+        <div>
+          <p class="text-sm text-slate-500">Total to pay</p>
+          <p class="text-3xl font-semibold text-slate-900">₦{{ totals.grand_total|floatformat:2 }}</p>
+        </div>
+        <div class="flex gap-3">
+          <a href="{% url 'pos_interface' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Back to Cart</a>
+          <button type="submit" id="complete-sale-btn" class="rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700">Complete Sale</button>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('checkout-form');
+  var btn = document.getElementById('complete-sale-btn');
+  if (!form || !btn) return;
+  form.addEventListener('submit', function () {
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+  });
+})();
+</script>
+{% endblock %}

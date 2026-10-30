@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Profile | ERMS{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+  <div class="mb-6 border-b border-slate-100 pb-5">
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Profile</h1>
+    <p class="mt-1 text-sm text-slate-500">Signed in as <span class="font-medium text-slate-700">{{ user.username }}</span></p>
+  </div>
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+    <div>
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="id_role">Role</label>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" id="id_role" name="role" value="{{ profile.role }}">
+    </div>
+    <div>
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="id_phone">Phone</label>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" id="id_phone" name="phone" value="{{ profile.phone }}">
+    </div>
+    <div>
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="id_department">Department</label>
+      <input class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" id="id_department" name="department" value="{{ profile.department }}">
+    </div>
+    <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" type="submit">Save changes</button>
+  </form>
+</section>
+{% endblock %}

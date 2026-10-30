@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ERMS{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+  <div class="flex min-h-screen">
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300">
+      <div class="h-16 flex items-center px-6 border-b border-slate-800">
+        <a href="{% url 'dashboard' %}" class="text-xl font-bold text-white tracking-tight hover:text-slate-200 transition">
+          ERMS
+        </a>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <!-- ERMS phase 3 nav -->
+        {% if user.is_authenticated %}
+          {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Dashboard</span>
+            </a>
+
+            <a href="{% url 'pos_interface' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">POS / Till</span>
+            </a>
+
+            <a href="{% url 'product_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Products</span>
+            </a>
+
+            <a href="{% url 'stock_receipt_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Goods Received</span>
+            </a>
+
+            <a href="{% url 'stock_summary' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Stock Overview</span>
+            </a>
+
+            <a href="{% url 'stock_movement_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Stock History</span>
+            </a>
+
+            <a href="{% url 'staff_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Staff Accounts</span>
+            </a>
+
+            <a href="{% url 'manager_daily_sales' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Daily Sales Review</span>
+            </a>
+
+            <a href="{% url 'report_dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Reports</span>
+            </a>
+
+            <details class="mt-1">
+              <summary class="flex cursor-pointer items-center justify-between px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                <span class="truncate">More</span>
+                <span class="ml-2 text-xs text-slate-500">&#9662;</span>
+              </summary>
+
+              <div class="mt-1 space-y-1 border-l border-slate-800 pl-3">
+                <a href="{% url 'product_category_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Categories
+                </a>
+
+                <a href="{% url 'supplier_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Suppliers
+                </a>
+
+                <a href="{% url 'purchase_order_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Purchase Orders
+                </a>
+
+                <a href="{% url 'customer_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Customers
+                </a>
+
+                <a href="{% url 'sales_order_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Sales Orders
+                </a>
+
+                <a href="{% url 'project_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Projects
+                </a>
+
+                <a href="{% url 'expense_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Finance
+                </a>
+
+                <a href="{% url 'employee_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Employees
+                </a>
+
+                <a href="{% url 'department_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+                  Departments
+                </a>
+              </div>
+            </details>
+          {% else %}
+            <a href="{% url 'pos_interface' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">POS / Till</span>
+            </a>
+
+            <a href="{% url 'pos_my_transactions' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">My Transactions</span>
+            </a>
+
+            <a href="{% url 'pos_daily_sales' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
+              <span class="truncate">Daily Sales</span>
+            </a>
+          {% endif %}
+        {% endif %}
+      </nav>
+
+      <div class="p-4 border-t border-slate-800">
+        {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-white font-semibold">
+              {{ user.username|first|upper }}
+            </div>
+            <div class="flex flex-col">
+              <span class="text-white">{{ user.username }}</span>
+              <span class="text-xs text-slate-400">View Profile</span>
+            </div>
+          </a>
+
+          <form method="post" action="{% url 'logout' %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="w-full rounded-md border border-slate-700 px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition">
+              Log out
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
+            <span>Login</span>
+          </a>
+        {% endif %}
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8">
+        <h2 class="text-lg font-semibold text-slate-800 lg:hidden">ERMS</h2>
+        <div class="hidden lg:block text-sm text-slate-500">
+          Supermarket Management System
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+        {% if messages %}
+          <ul class="mb-6 space-y-2">
+            {% for message in messages %}
+              <li class="rounded-lg border px-4 py-3 text-sm {% if 'error' in message.tags %}border-red-200 bg-red-50 text-red-800{% else %}border-emerald-200 bg-emerald-50 text-emerald-800{% endif %}">
+                {{ message }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

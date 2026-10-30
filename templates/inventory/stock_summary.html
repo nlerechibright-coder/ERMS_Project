@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Stock Summary | ERMS{% endblock %}
+{% block content %}
+<!-- ERMS Phase 1b template -->
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-900">Stock Summary</h1>
+      <p class="mt-1 text-sm text-slate-500">Current stock, reorder status and valuation where cost is known.</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'stock_receipt_create' %}" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">Receive Goods</a>
+      <a href="{% url 'product_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Back to Inventory</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm font-medium text-slate-500">Total stock units</p>
+      <p class="mt-2 text-2xl font-semibold text-slate-900">{{ total_units|floatformat:-3 }}</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm font-medium text-slate-500">Stock value (known cost)</p>
+      <p class="mt-2 text-2xl font-semibold text-slate-900">₦{{ stock_value|floatformat:2 }}</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm font-medium text-slate-500">Low stock products</p>
+      <p class="mt-2 text-2xl font-semibold text-amber-700">{{ low_stock_count }}</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm font-medium text-slate-500">Products with unknown cost</p>
+      <p class="mt-2 text-2xl font-semibold text-slate-900">{{ unknown_cost_count }}</p>
+    </div>
+  </div>
+
+  <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-6 py-3">Product</th>
+            <th class="px-6 py-3">Category</th>
+            <th class="px-6 py-3">Stock</th>
+            <th class="px-6 py-3">Reorder</th>
+            <th class="px-6 py-3">Retail</th>
+            <th class="px-6 py-3">Wholesale</th>
+            <th class="px-6 py-3">Average cost</th>
+            <th class="px-6 py-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          {% for product in products %}
+            <tr class="hover:bg-slate-50">
+              <td class="px-6 py-4">
+                <div class="font-medium text-slate-900">{{ product.name }}</div>
+                <div class="mt-1 font-mono text-xs text-slate-500">{{ product.sku }}</div>
+              </td>
+              <td class="px-6 py-4">{{ product.category.name|default:"-" }}</td>
+              <td class="px-6 py-4">
+                <span class="font-semibold text-slate-900">{{ product.current_stock|floatformat:-3 }}</span>
+                <span class="text-xs text-slate-500">{{ product.stock_unit }}</span>
+              </td>
+              <td class="px-6 py-4">{{ product.reorder_level|floatformat:-3 }}</td>
+              <td class="px-6 py-4">
+                {% if product.unit_price > 0 %}₦{{ product.unit_price|floatformat:2 }}{% else %}<span class="text-amber-600">Not set</span>{% endif %}
+              </td>
+              <td class="px-6 py-4">
+                {% if product.wholesale_price > 0 %}₦{{ product.wholesale_price|floatformat:2 }}{% else %}<span class="text-slate-400">-</span>{% endif %}
+              </td>
+              <td class="px-6 py-4">
+                {% if product.cost_known and product.average_cost > 0 %}
+                  ₦{{ product.average_cost|floatformat:4 }}
+                {% else %}
+                  <span class="text-amber-600">Unknown</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-4">
+                {% if not product.is_active %}
+                  <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">Inactive</span>
+                {% elif product.is_low_stock %}
+                  <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">Low stock</span>
+                {% else %}
+                  <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">OK</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="8" class="px-6 py-8 text-center text-slate-500">No products found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

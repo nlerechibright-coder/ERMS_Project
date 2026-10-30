@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Tasks | ERMS{% endblock %}
+{% block content %}
+<section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+  <div class="border-b border-slate-200 px-6 py-5"><h1 class="text-xl font-semibold text-slate-900">Tasks</h1><p class="mt-1 text-sm text-slate-500">Project tasks and due dates.</p></div>
+  <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+    <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500"><tr><th class="px-6 py-3">Task</th><th class="px-6 py-3">Project</th><th class="px-6 py-3">Status</th><th class="px-6 py-3">Due</th></tr></thead>
+    <tbody class="divide-y divide-slate-100 text-slate-700">{% for task in tasks %}<tr class="hover:bg-slate-50"><td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ task.title }}</td><td class="px-6 py-4">{{ task.project.name }}</td><td class="px-6 py-4">{{ task.status }}</td><td class="px-6 py-4">{{ task.due_date }}</td></tr>{% empty %}<tr><td class="px-6 py-8 text-center text-slate-500" colspan="4">No tasks found.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endblock %}
