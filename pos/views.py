@@ -496,23 +496,32 @@ def my_transactions(request):
 @pos_access_required
 def daily_sales(request):
     date = business_today()
-    summary = compute_daily_summary(request.user, date)
-    submission = (
-        DailySalesSubmission.objects
-        .filter(staff_user=request.user, business_date=date)
-        .order_by("-created_at")
-        .first()
-    )
+    
+    # 1. Find IDs of receipts already in active (non-rejected) submissions
+    submitted_ids = DailySalesSubmission.objects.filter(
+        staff_user=request.user, business_date=date
+    ).exclude(status="REJECTED").values_list('receipts__id', flat=True)
+    
+    # 2. Get only the pending (unsubmitted) receipts
+    pending_receipts = PosReceipt.objects.filter(
+        staff_user=request.user, business_date=date, status="COMPLETED"
+    ).exclude(id__in=submitted_ids)
+    
+    # 3. Summarize the pending receipts for the top cards
+    pending_summary = summarize_receipts(pending_receipts)
+    
+    # 4. Get all submissions for today for the history table
+    submissions = DailySalesSubmission.objects.filter(
+        staff_user=request.user, business_date=date
+    ).order_by('-submitted_at')
 
     return render(request, "pos/daily_sales.html", {
         "date": date,
-        "summary": summary,
-        "submission": submission,
+        "pending_summary": pending_summary,
+        "submissions": submissions,
     })
 
 
-@require_POST
-@pos_access_required
 def submit_daily_sales(request):
     submission = submit_daily_sales_service(request.user)
     if submission:
