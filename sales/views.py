@@ -11,6 +11,13 @@ from .models import Customer, SalesOrder, SalesOrderLineItem
 
 @management_required
 def customer_list(request):
+    if request.method == "POST":
+        from sales.models import Customer
+        name = request.POST.get('name', '').strip()
+        if name:
+            Customer.objects.create(name=name, company=request.POST.get('company', ''), email=request.POST.get('email', ''), phone=request.POST.get('phone', ''), address=request.POST.get('address', ''))
+            messages.success(request, f'Customer {name} added.')
+        return redirect('customer_list')
     customers = Customer.objects.order_by('name')
     if request.method == 'POST':
         if not request.user.is_staff and not request.user.is_superuser:

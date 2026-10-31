@@ -8,8 +8,12 @@
       <h1 class="text-xl font-semibold text-slate-900">Point of Sale</h1>
       <p class="mt-1 text-sm text-slate-500">Search products, build a cart, then complete the sale.</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <a href="{% url 'pos_my_transactions' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">My Transactions</a>
+      {% if user.is_staff or user.is_superuser %}
+        <a href="{% url 'supplier_list' %}" target="_blank" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">+ Add Supplier</a>
+        <a href="{% url 'customer_list' %}" target="_blank" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">+ Add Customer</a>
+      {% endif %}
     </div>
   </div>
 

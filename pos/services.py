@@ -148,95 +148,45 @@ def submit_daily_sales_service(user, date=None):
     date = date or business_today()
 
     with transaction.atomic():
-        active = DailySalesSubmission.objects.filter(
-            staff_user=user,
-            business_date=date,
-        ).exclude(
-            status="REJECTED",
-        ).order_by("-created_at").first()
+        # Find receipts that are NOT already in an active (non-rejected) submission
+        submitted_receipt_ids = DailySalesSubmission.objects.filter(
+            staff_user=user, business_date=date
+        ).exclude(status="REJECTED").values_list('receipts__id', flat=True)
 
-        if active:
-            raise ValidationError(
-                "You have already submitted your daily sales for this date."
-            )
+        receipts = PosReceipt.objects.filter(
+            staff_user=user, business_date=date, status="COMPLETED"
+        ).exclude(id__in=submitted_receipt_ids)
 
-        submission = DailySalesSubmission.objects.filter(
-            staff_user=user,
-            business_date=date,
-            status="REJECTED",
-        ).order_by("-created_at").first()
-
-        receipts = receipts_for_user_date(user, date)
         if not receipts.exists():
-            raise ValidationError("No completed sales found for today.")
+            raise ValidationError("No new completed sales found to submit.")
 
         summary = summarize_receipts(receipts)
-        if summary["transaction_count"] == 0:
-            raise ValidationError("No completed sales found for today.")
 
-        is_new = submission is None
+        # Always create a NEW submission for this batch
+        reference = f"DS-{user.username}-{date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:4].upper()}"
 
-        if is_new:
-            reference = f"DS-{user.username}-{date.strftime('%Y%m%d')}"
-            if DailySalesSubmission.objects.filter(reference=reference).exists():
-                reference = f"{reference}-{uuid.uuid4().hex[:6].upper()}"
-
-            submission = DailySalesSubmission.objects.create(
-                reference=reference,
-                staff_user=user,
-                business_date=date,
-                status="SUBMITTED",
-                transaction_count=summary["transaction_count"],
-                item_quantity_total=summary["item_quantity_total"],
-                sales_total=summary["sales_total"],
-                payment_total=summary["payment_total"],
-                submitted_at=timezone.now(),
-            )
-
-            action = "SUBMITTED"
-            message = "Daily sales submitted."
-        else:
-            old_reason = submission.rejection_reason
-
-            submission.status = "SUBMITTED"
-            submission.transaction_count = summary["transaction_count"]
-            submission.item_quantity_total = summary["item_quantity_total"]
-            submission.sales_total = summary["sales_total"]
-            submission.payment_total = summary["payment_total"]
-            submission.submitted_at = timezone.now()
-            submission.reviewed_by = None
-            submission.reviewed_at = None
-            submission.rejection_reason = ""
-
-            submission.save(update_fields=[
-                "status",
-                "transaction_count",
-                "item_quantity_total",
-                "sales_total",
-                "payment_total",
-                "submitted_at",
-                "reviewed_by",
-                "reviewed_at",
-                "rejection_reason",
-            ])
-
-            action = "RESUBMITTED"
-            if old_reason:
-                message = f"Resubmitted after rejection. Previous reason: {old_reason}"
-            else:
-                message = "Resubmitted."
+        submission = DailySalesSubmission.objects.create(
+            reference=reference,
+            staff_user=user,
+            business_date=date,
+            status="SUBMITTED",
+            transaction_count=summary["transaction_count"],
+            item_quantity_total=summary["item_quantity_total"],
+            sales_total=summary["sales_total"],
+            payment_total=summary["payment_total"],
+            submitted_at=timezone.now(),
+        )
 
         receipts.update(daily_submission=submission)
 
         DailySubmissionEvent.objects.create(
             submission=submission,
-            action=action,
+            action="SUBMITTED",
             user=user,
-            message=message,
+            message="Batch of sales submitted.",
         )
 
         return submission
-
 
 def accept_submission(submission, manager):
     with transaction.atomic():
