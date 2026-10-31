@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from pos.models import PosReceipt
 from django.db.models import Sum
 from django.shortcuts import redirect, render
 
@@ -25,7 +26,7 @@ def dashboard(request):
     active_employees = Employee.objects.filter(employment_status='ACTIVE').count()
     department_count = Department.objects.count()
     product_count = Product.objects.count()
-    low_stock = Product.objects.filter(current_stock__lte=0).count()
+    low_stock = Product.objects.filter(current_stock__lte=5).count()
     pending_orders = PurchaseOrder.objects.filter(status='SUBMITTED').count()
     pending_expenses = Expense.objects.filter(status='PENDING').count()
     active_projects = Project.objects.count()
@@ -33,6 +34,14 @@ def dashboard(request):
     sales_total = SalesOrder.objects.filter(status='FULFILLED').aggregate(total=Sum('total_amount'))['total'] or 0
     recent_activity = ActivityLog.objects.order_by('-created_at')[:8]
     notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
+    
+    # Include actual POS receipts in today's sales total
+    pos_today = PosReceipt.objects.filter(business_date=today, status="COMPLETED").aggregate(total=Sum('grand_total'))['total'] or 0
+    if 'today_sales' in locals():
+        today_sales = (today_sales or 0) + pos_today
+    else:
+        today_sales = pos_today
+
     return render(request, 'core/dashboard.html', {
         'active_employees': active_employees,
         'department_count': department_count,
@@ -64,4 +73,12 @@ def login_view(request):
                 return redirect('dashboard')
     else:
         form = AuthenticationForm()
+    
+    # Include actual POS receipts in today's sales total
+    pos_today = PosReceipt.objects.filter(business_date=today, status="COMPLETED").aggregate(total=Sum('grand_total'))['total'] or 0
+    if 'today_sales' in locals():
+        today_sales = (today_sales or 0) + pos_today
+    else:
+        today_sales = pos_today
+
     return render(request, 'accounts/login.html', {'form': form})

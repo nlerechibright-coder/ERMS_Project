@@ -522,6 +522,8 @@ def daily_sales(request):
     })
 
 
+@require_POST
+@pos_access_required
 def submit_daily_sales(request):
     submission = submit_daily_sales_service(request.user)
     if submission:
