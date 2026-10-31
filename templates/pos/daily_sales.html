@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}My Daily Sales | ERMS{% endblock %}
+{% block title %}My Sales Batches | ERMS{% endblock %}
 {% block content %}
 <div class="space-y-6">
   <div class="flex items-center justify-between">
@@ -12,38 +12,32 @@
 
   <section class="rounded-xl border-2 border-indigo-200 bg-indigo-50 p-6 shadow-sm">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold text-indigo-900">Pending Sales (Ready to Submit)</h2>
+      <h2 class="text-lg font-semibold text-indigo-900">Submit Sales to Manager</h2>
       <span class="text-sm font-medium text-indigo-700">Date: {{ date|date:"Y-m-d" }}</span>
     </div>
     
-    {% if pending_summary.transaction_count > 0 %}
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3 mb-5">
-        <div class="bg-white p-4 rounded-lg border border-indigo-100">
-          <p class="text-sm text-slate-500">New Transactions</p>
-          <p class="text-2xl font-bold text-slate-900">{{ pending_summary.transaction_count }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg border border-indigo-100">
-          <p class="text-sm text-slate-500">Total Amount</p>
-          <p class="text-2xl font-bold text-slate-900">&#8358;{{ pending_summary.sales_total|floatformat:2 }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-lg border border-indigo-100">
-          <p class="text-sm text-slate-500">Items Sold</p>
-          <p class="text-2xl font-bold text-slate-900">{{ pending_summary.item_quantity_total|floatformat:-3 }}</p>
-        </div>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3 mb-5">
+      <div class="bg-white p-4 rounded-lg border border-indigo-100">
+        <p class="text-sm text-slate-500">Pending Transactions</p>
+        <p class="text-2xl font-bold text-slate-900">{{ pending_summary.transaction_count }}</p>
       </div>
+      <div class="bg-white p-4 rounded-lg border border-indigo-100">
+        <p class="text-sm text-slate-500">Pending Amount</p>
+        <p class="text-2xl font-bold text-slate-900">&#8358;{{ pending_summary.sales_total|floatformat:2 }}</p>
+      </div>
+      <div class="bg-white p-4 rounded-lg border border-indigo-100">
+        <p class="text-sm text-slate-500">Pending Items</p>
+        <p class="text-2xl font-bold text-slate-900">{{ pending_summary.item_quantity_total|floatformat:-3 }}</p>
+      </div>
+    </div>
 
-      <form method="post" action="{% url 'pos_daily_sales_submit' %}">
-        {% csrf_token %}
-        <button type="submit" class="w-full md:w-auto rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-700 shadow-md">
-          Submit These {{ pending_summary.transaction_count }} Sales to Manager Now
-        </button>
-      </form>
-    {% else %}
-      <div class="bg-white p-6 rounded-lg border border-slate-200 text-center">
-        <p class="text-slate-600 font-medium">You have no new sales to submit right now.</p>
-        <p class="text-sm text-slate-500 mt-1">Go to the POS to make a sale, then come back here to submit it!</p>
-      </div>
-    {% endif %}
+    <form method="post" action="{% url 'pos_daily_sales_submit' %}">
+      {% csrf_token %}
+      <button type="submit" class="w-full md:w-auto rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white hover:bg-emerald-700 shadow-md">
+        Submit New Sales to Manager Now
+      </button>
+    </form>
+    <p class="mt-3 text-sm text-slate-600">Click this anytime to send your latest batch of sales. If you have no new sales, it will just refresh the page.</p>
   </section>
 
   <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -56,9 +50,9 @@
         <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
             <th class="px-6 py-3">Reference</th>
-            <th class="px-6 py-3">Time Submitted</th>
+            <th class="px-6 py-3">Time</th>
             <th class="px-6 py-3 text-right">Transactions</th>
-            <th class="px-6 py-3 text-right">Total Amount</th>
+            <th class="px-6 py-3 text-right">Total</th>
             <th class="px-6 py-3">Status</th>
           </tr>
         </thead>
@@ -79,7 +73,7 @@
               </td>
             </tr>
           {% empty %}
-            <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">You haven't submitted any batches yet today.</td></tr>
+            <tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">No submissions yet today.</td></tr>
           {% endfor %}
         </tbody>
       </table>
