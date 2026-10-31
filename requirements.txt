@@ -1,3 +1,6 @@
-﻿gunicorn
-psycopg2-binary
-whitenoise
+﻿Django==4.2.30
+gunicorn==23.0.0
+psycopg2-binary==2.9.10
+whitenoise==6.12.0
+django-bootstrap-v5==1.0.11
+tzdata

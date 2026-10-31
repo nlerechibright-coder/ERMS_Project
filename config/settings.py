@@ -9,23 +9,10 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'bootstrap5',
-    'core',
-    'accounts',
-    'organization',
-    'inventory',
-    'procurement',
-    'sales',
-    'projects',
-    'finance',
-    'reports',
-    'pos',
+    'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
+    'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
+    'bootstrap5', 'core', 'accounts', 'organization', 'inventory', 'procurement',
+    'sales', 'projects', 'finance', 'reports', 'pos',
 ]
 
 MIDDLEWARE = [
@@ -39,7 +26,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = 'config.urls'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 TEMPLATES = [
     {
@@ -57,16 +45,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-
-# Bulletproof Database Parsing (Uses built-in Python, no extra packages!)
+# Bulletproof Database Parsing (No external packages needed)
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     url = urlparse(DATABASE_URL)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': url.path[1:], # Removes the leading '/' from the URL path
+            'NAME': url.path[1:],
             'USER': url.username,
             'PASSWORD': url.password,
             'HOST': url.hostname,
@@ -100,7 +86,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
