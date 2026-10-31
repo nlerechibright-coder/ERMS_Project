@@ -1,56 +1,63 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ERMS{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
-  <div class="flex min-h-screen">
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300">
-      <div class="h-16 flex items-center px-6 border-b border-slate-800">
-        <a href="{% url 'dashboard' %}" class="text-xl font-bold text-white tracking-tight hover:text-slate-200 transition">
-          ERMS
-        </a>
+  
+  <!-- Mobile Header (Hamburger Menu) -->
+  <header class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 text-white flex items-center justify-between px-4 z-50 shadow-md">
+    <a href="{% url 'dashboard' %}" class="text-xl font-bold tracking-tight">ERMS</a>
+    <button id="mobile-menu-btn" class="p-2 rounded-md hover:bg-slate-800 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Dark Overlay for Mobile Sidebar -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+  <div class="flex min-h-screen pt-16 lg:pt-0">
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-300 ease-in-out">
+      <!-- Sidebar Header / Logo (Desktop only) -->
+      <div class="hidden lg:flex h-16 items-center px-6 border-b border-slate-800">
+        <a href="{% url 'dashboard' %}" class="text-xl font-bold text-white tracking-tight hover:text-slate-200 transition">ERMS</a>
       </div>
 
+      <!-- Sidebar Navigation Links -->
       <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        <!-- ERMS phase 3 nav -->
         {% if user.is_authenticated %}
           {% if user.is_staff or user.is_superuser %}
             <a href="{% url 'dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Dashboard</span>
             </a>
-
             <a href="{% url 'pos_interface' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">POS / Till</span>
             </a>
-
             <a href="{% url 'product_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Products</span>
             </a>
-
             <a href="{% url 'stock_receipt_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Goods Received</span>
             </a>
-
             <a href="{% url 'stock_summary' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Stock Overview</span>
             </a>
-
             <a href="{% url 'stock_movement_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Stock History</span>
             </a>
-
             <a href="{% url 'staff_list' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Staff Accounts</span>
             </a>
-
             <a href="{% url 'manager_daily_sales' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Daily Sales Review</span>
             </a>
-
             <a href="{% url 'report_dashboard' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Reports</span>
             </a>
@@ -60,54 +67,25 @@
                 <span class="truncate">More</span>
                 <span class="ml-2 text-xs text-slate-500">&#9662;</span>
               </summary>
-
               <div class="mt-1 space-y-1 border-l border-slate-800 pl-3">
-                <a href="{% url 'product_category_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Categories
-                </a>
-
-                <a href="{% url 'supplier_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Suppliers
-                </a>
-
-                <a href="{% url 'purchase_order_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Purchase Orders
-                </a>
-
-                <a href="{% url 'customer_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Customers
-                </a>
-
-                <a href="{% url 'sales_order_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Sales Orders
-                </a>
-
-                <a href="{% url 'project_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Projects
-                </a>
-
-                <a href="{% url 'expense_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Finance
-                </a>
-
-                <a href="{% url 'employee_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Employees
-                </a>
-
-                <a href="{% url 'department_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
-                  Departments
-                </a>
+                <a href="{% url 'product_category_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Categories</a>
+                <a href="{% url 'supplier_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Suppliers</a>
+                <a href="{% url 'purchase_order_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Purchase Orders</a>
+                <a href="{% url 'customer_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Customers</a>
+                <a href="{% url 'sales_order_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Sales Orders</a>
+                <a href="{% url 'project_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Projects</a>
+                <a href="{% url 'expense_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Finance</a>
+                <a href="{% url 'employee_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Employees</a>
+                <a href="{% url 'department_list' %}" class="block px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">Departments</a>
               </div>
             </details>
           {% else %}
             <a href="{% url 'pos_interface' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">POS / Till</span>
             </a>
-
             <a href="{% url 'pos_my_transactions' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">My Transactions</span>
             </a>
-
             <a href="{% url 'pos_daily_sales' %}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition group">
               <span class="truncate">Daily Sales</span>
             </a>
@@ -115,6 +93,7 @@
         {% endif %}
       </nav>
 
+      <!-- Sidebar Footer / User Profile -->
       <div class="p-4 border-t border-slate-800">
         {% if user.is_authenticated %}
           <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 hover:text-white transition">
@@ -141,15 +120,13 @@
       </div>
     </aside>
 
+    <!-- MAIN CONTENT AREA -->
     <div class="flex-1 flex flex-col min-w-0">
-      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8">
-        <h2 class="text-lg font-semibold text-slate-800 lg:hidden">ERMS</h2>
-        <div class="hidden lg:block text-sm text-slate-500">
-          Supermarket Management System
-        </div>
+      <header class="hidden lg:flex h-16 bg-white border-b border-slate-200 items-center justify-between px-6 lg:px-8 sticky top-0 z-30">
+        <h2 class="text-lg font-semibold text-slate-800">Supermarket Management System</h2>
       </header>
 
-      <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+      <main class="flex-1 overflow-y-auto p-4 lg:p-8">
         {% if messages %}
           <ul class="mb-6 space-y-2">
             {% for message in messages %}
@@ -159,10 +136,29 @@
             {% endfor %}
           </ul>
         {% endif %}
-
+        
         {% block content %}{% endblock %}
       </main>
     </div>
   </div>
+
+  <!-- Mobile Menu Toggle Script -->
+  <script>
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (menuBtn && sidebar && overlay) {
+      menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+      });
+
+      overlay.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      });
+    }
+  </script>
 </body>
 </html>
