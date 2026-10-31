@@ -163,5 +163,26 @@
       });
     }
   </script>
+
+<script>
+  // Auto-format currency fields with commas while typing
+  document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('format-currency')) {
+      let val = e.target.value.replace(/,/g, '').replace(/[^0-9.]/g, '');
+      let parts = val.split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      e.target.value = parts.join('.');
+    }
+  });
+
+  // Strip commas before form submission so Django accepts the decimal
+  document.addEventListener('submit', function(e) {
+    let fields = e.target.querySelectorAll('.format-currency');
+    fields.forEach(field => {
+      field.value = field.value.replace(/,/g, '');
+    });
+  });
+</script>
+
 </body>
 </html>
