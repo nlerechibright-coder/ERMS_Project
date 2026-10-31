@@ -148,22 +148,24 @@ def submit_daily_sales_service(user, date=None):
     date = date or business_today()
 
     with transaction.atomic():
-        # Find receipts that are NOT already in an active (non-rejected) submission
-        submitted_receipt_ids = DailySalesSubmission.objects.filter(
+        # 1. Find receipts that are ALREADY submitted today
+        submitted_ids = DailySalesSubmission.objects.filter(
             staff_user=user, business_date=date
         ).exclude(status="REJECTED").values_list('receipts__id', flat=True)
 
-        receipts = PosReceipt.objects.filter(
+        # 2. Grab ONLY the new, unsubmitted receipts
+        pending_receipts = PosReceipt.objects.filter(
             staff_user=user, business_date=date, status="COMPLETED"
-        ).exclude(id__in=submitted_receipt_ids)
+        ).exclude(id__in=submitted_ids)
 
-        if not receipts.exists():
-            raise ValidationError("No new completed sales found to submit.")
+        # 3. If there are no new receipts, just return None (no error)
+        if not pending_receipts.exists():
+            return None
 
-        summary = summarize_receipts(receipts)
+        summary = summarize_receipts(pending_receipts)
 
-        # Always create a NEW submission for this batch
-        reference = f"DS-{user.username}-{date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:4].upper()}"
+        # 4. Create a BRAND NEW submission for this specific batch
+        reference = f"DS-{user.username}-{date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
 
         submission = DailySalesSubmission.objects.create(
             reference=reference,
@@ -177,16 +179,18 @@ def submit_daily_sales_service(user, date=None):
             submitted_at=timezone.now(),
         )
 
-        receipts.update(daily_submission=submission)
+        # 5. Link ONLY these new receipts to this new submission
+        pending_receipts.update(daily_submission=submission)
 
         DailySubmissionEvent.objects.create(
             submission=submission,
             action="SUBMITTED",
             user=user,
-            message="Batch of sales submitted.",
+            message=f"Batch of {summary['transaction_count']} new sales submitted.",
         )
 
         return submission
+
 
 def accept_submission(submission, manager):
     with transaction.atomic():
