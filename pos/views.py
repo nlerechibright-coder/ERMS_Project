@@ -526,7 +526,12 @@ def submit_daily_sales(request):
 @management_required
 def manager_daily_sales(request):
     today = business_today()
-    date = _parse_date(request.GET.get("date"), today)
+    date_str = request.GET.get("date")
+    if date_str:
+        date = _parse_date(date_str, today)
+    else:
+        latest_submission = DailySalesSubmission.objects.order_by("-business_date").first()
+        date = latest_submission.business_date if latest_submission else today
     status = request.GET.get("status", "")
 
     submissions = (
@@ -541,10 +546,7 @@ def manager_daily_sales(request):
 
     combined = compute_date_summary(date)
 
-    pending_count = DailySalesSubmission.objects.filter(
-        business_date=date,
-        status__in=["SUBMITTED", "UNDER_REVIEW"],
-    ).count()
+    pending_count = DailySalesSubmission.objects.filter(status__in=["SUBMITTED", "UNDER_REVIEW"]).count()
 
     accepted_count = DailySalesSubmission.objects.filter(
         business_date=date,
