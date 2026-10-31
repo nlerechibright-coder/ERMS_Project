@@ -74,11 +74,6 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     
-    # Include actual POS receipts in today's sales total
-    pos_today = PosReceipt.objects.filter(business_date=today, status="COMPLETED").aggregate(total=Sum('grand_total'))['total'] or 0
-    if 'today_sales' in locals():
-        today_sales = (today_sales or 0) + pos_today
     else:
-        today_sales = pos_today
 
     return render(request, 'accounts/login.html', {'form': form})
