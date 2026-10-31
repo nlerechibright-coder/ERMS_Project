@@ -60,8 +60,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# 3. Database Configuration (Render Automatic Env Vars)
-if os.environ.get('PGHOST'):
+import dj_database_url
+
+# 3. Database Configuration (Supports Neon, Render, and Local)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+    }
+elif os.environ.get('PGHOST'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -112,3 +119,4 @@ LOGOUT_REDIRECT_URL = 'login'
 # 9. Render Security Settings
 CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
