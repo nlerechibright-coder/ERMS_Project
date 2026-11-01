@@ -494,6 +494,7 @@ def my_transactions(request):
 
 
 @pos_access_required
+@pos_access_required
 def daily_sales(request):
     date = business_today()
     
@@ -521,8 +522,6 @@ def daily_sales(request):
         "submissions": submissions,
     })
 
-
-@require_POST
 @pos_access_required
 def submit_daily_sales(request):
     submission = submit_daily_sales_service(request.user)
