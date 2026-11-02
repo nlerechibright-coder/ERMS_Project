@@ -1,3 +1,4 @@
+﻿from django.contrib.auth.decorators import login_required
 import datetime
 import uuid
 from decimal import Decimal, InvalidOperation
@@ -523,7 +524,9 @@ def daily_sales(request):
     })
 
 @pos_access_required
-def submit_daily_sales(request):
+@login_required
+@require_POST
+
     submission = submit_daily_sales_service(request.user)
     if submission:
         messages.success(request, f"Successfully submitted {submission.transaction_count} new sales! (Ref: {submission.reference})")
@@ -624,3 +627,4 @@ def manager_daily_sales_reject(request, submission_id):
         messages.error(request, str(exc))
 
     return redirect("manager_daily_sales_detail", submission_id=submission.pk)
+
