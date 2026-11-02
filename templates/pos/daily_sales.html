@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -12,7 +12,7 @@
         <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-blue-500">
             <div class="px-4 py-5 sm:p-6">
                 <dt class="text-sm font-medium text-gray-500 truncate">Pending Sales Amount</dt>
-                <dd class="mt-1 text-3xl font-semibold text-gray-900">₦{{ pending_summary.total_amount|default:0|floatformat:2 }}</dd>
+                <dd class="mt-1 text-3xl font-semibold text-gray-900">â‚¦{{ pending_summary.total_amount|default:0|floatformat:2 }}</dd>
             </div>
         </div>
         <div class="bg-white overflow-hidden shadow rounded-lg border-l-4 border-green-500">
@@ -32,7 +32,7 @@
     <!-- Submit Button -->
     {% if pending_summary.transaction_count|default:0 > 0 %}
     <div class="mb-8">
-        <form method="POST" action="{% url 'pos_submit_daily_sales' %}">
+        <form method="POST" action="{% url 'pos_daily_sales_submit' %}">
             {% csrf_token %}
             <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Submit Pending Sales to Manager
@@ -69,7 +69,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ sub.reference }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sub.submitted_at|date:"h:i A" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sub.transaction_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">₦{{ sub.total_amount|default:0|floatformat:2 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">â‚¦{{ sub.total_amount|default:0|floatformat:2 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if sub.status == 'ACCEPTED' %}
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Accepted</span>
@@ -94,3 +94,4 @@
     </div>
 </div>
 {% endblock %}
+

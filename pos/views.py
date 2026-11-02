@@ -628,3 +628,4 @@ def manager_daily_sales_reject(request, submission_id):
 
     return redirect("manager_daily_sales_detail", submission_id=submission.pk)
 
+
