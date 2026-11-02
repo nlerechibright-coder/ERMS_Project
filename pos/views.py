@@ -523,10 +523,10 @@ def daily_sales(request):
         "submissions": submissions,
     })
 
-@pos_access_required
 @login_required
 @require_POST
-
+@pos_access_required
+def submit_daily_sales(request):
     submission = submit_daily_sales_service(request.user)
     if submission:
         messages.success(request, f"Successfully submitted {submission.transaction_count} new sales! (Ref: {submission.reference})")
