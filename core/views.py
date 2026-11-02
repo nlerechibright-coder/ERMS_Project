@@ -36,7 +36,8 @@ def dashboard(request):
     notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
     
     # Include actual POS receipts in today's sales total
-    pos_today = PosReceipt.objects.filter(business_date=today, status="COMPLETED").aggregate(total=Sum('grand_total'))['total'] or 0
+    today = date.today()
+ status="COMPLETED").aggregate(total=Sum('grand_total'))['total'] or 0
     if 'today_sales' in locals():
         today_sales = (today_sales or 0) + pos_today
     else:
@@ -70,4 +71,5 @@ def login_view(request):
         form = AuthenticationForm()
     
     return render(request, 'accounts/login.html', {'form': form})
+
 
