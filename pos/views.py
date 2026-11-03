@@ -495,44 +495,55 @@ def my_transactions(request):
 
 
 @pos_access_required
-@pos_access_required
 def daily_sales(request):
     date = business_today()
     
-    # 1. Find IDs of receipts already in active (non-rejected) submissions
+    # 1. Check if user already has an active submission today
+    has_submitted_today = DailySalesSubmission.objects.filter(
+        staff_user=request.user, business_date=date
+    ).exclude(status="REJECTED").exists()
+    
+    # 2. Find IDs of receipts already in active (non-rejected) submissions
     submitted_ids = DailySalesSubmission.objects.filter(
         staff_user=request.user, business_date=date
     ).exclude(status="REJECTED").values_list('receipts__id', flat=True)
     
-    # 2. Get only the pending (unsubmitted) receipts
+    # 3. Get only the pending (unsubmitted) receipts
     pending_receipts = PosReceipt.objects.filter(
         staff_user=request.user, business_date=date, status="COMPLETED"
     ).exclude(id__in=submitted_ids)
     
-    # 3. Summarize the pending receipts for the top cards
+    # 4. Summarize the pending receipts for the top cards
     pending_summary = summarize_receipts(pending_receipts)
     
-    # 4. Get all submissions for today for the history table
+    # 5. Get all submissions for today for the history table
     submissions = DailySalesSubmission.objects.filter(
         staff_user=request.user, business_date=date
     ).order_by('-submitted_at')
 
     return render(request, "pos/daily_sales.html", {
         "date": date,
+        "has_submitted_today": has_submitted_today,
         "pending_summary": pending_summary,
         "submissions": submissions,
     })
+
 
 @login_required
 @require_POST
 @pos_access_required
 def submit_daily_sales(request):
-    submission = submit_daily_sales_service(request.user)
-    if submission:
-        messages.success(request, f"Successfully submitted {submission.transaction_count} new sales! (Ref: {submission.reference})")
+    result = submit_daily_sales_service(request.user)
+    
+    if result == "ALREADY_SUBMITTED":
+        messages.warning(request, "You have already submitted your sales for today. Submissions are allowed only once per day.")
+    elif result:
+        messages.success(request, f"Successfully submitted {result.transaction_count} sales! (Ref: {result.reference})")
     else:
-        messages.info(request, "No new sales to submit. Make a sale first, then come back to submit it!")
+        messages.info(request, "No sales to submit. Make a sale first, then come back to submit it!")
+        
     return redirect("pos_daily_sales")
+
 
 @management_required
 def manager_daily_sales(request):
@@ -627,5 +638,3 @@ def manager_daily_sales_reject(request, submission_id):
         messages.error(request, str(exc))
 
     return redirect("manager_daily_sales_detail", submission_id=submission.pk)
-
-

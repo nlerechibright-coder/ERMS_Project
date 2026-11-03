@@ -1,4 +1,4 @@
-import uuid
+﻿import uuid
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
@@ -148,23 +148,27 @@ def submit_daily_sales_service(user, date=None):
     date = date or business_today()
 
     with transaction.atomic():
-        # 1. Find receipts that are ALREADY submitted today
-        submitted_ids = DailySalesSubmission.objects.filter(
+        # 1. Check if the user already has an active (non-rejected) submission for today
+        existing_submission = DailySalesSubmission.objects.filter(
             staff_user=user, business_date=date
-        ).exclude(status="REJECTED").values_list('receipts__id', flat=True)
+        ).exclude(status="REJECTED").first()
 
-        # 2. Grab ONLY the new, unsubmitted receipts
+        if existing_submission:
+            # Prevent multiple submissions per day
+            return "ALREADY_SUBMITTED"
+
+        # 2. Grab ALL completed receipts for today (since none are submitted yet)
         pending_receipts = PosReceipt.objects.filter(
             staff_user=user, business_date=date, status="COMPLETED"
-        ).exclude(id__in=submitted_ids)
+        )
 
-        # 3. If there are no new receipts, just return None (no error)
+        # 3. If there are no receipts, return None
         if not pending_receipts.exists():
             return None
 
         summary = summarize_receipts(pending_receipts)
 
-        # 4. Create a BRAND NEW submission for this specific batch
+        # 4. Create a BRAND NEW submission
         reference = f"DS-{user.username}-{date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
 
         submission = DailySalesSubmission.objects.create(
@@ -179,14 +183,14 @@ def submit_daily_sales_service(user, date=None):
             submitted_at=timezone.now(),
         )
 
-        # 5. Link ONLY these new receipts to this new submission
+        # 5. Link these receipts to this submission
         pending_receipts.update(daily_submission=submission)
 
         DailySubmissionEvent.objects.create(
             submission=submission,
             action="SUBMITTED",
             user=user,
-            message=f"Batch of {summary['transaction_count']} new sales submitted.",
+            message=f"Batch of {summary['transaction_count']} sales submitted.",
         )
 
         return submission

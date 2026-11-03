@@ -29,21 +29,52 @@
         </div>
     </div>
 
-    <!-- Submit Button -->
-    {% if pending_summary.transaction_count|default:0 > 0 %}
+        <!-- Daily Submission Warning / Action -->
     <div class="mb-8">
+        {% if has_submitted_today %}
+        <div class="p-4 bg-green-50 border border-green-200 rounded-md">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Submission Complete</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                        <p>You have already submitted your sales for today. Submissions are allowed only <strong>once per day</strong>. Any new sales made today will be included in tomorrow's submission.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif pending_summary.transaction_count|default:0 > 0 %}
+        <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-md mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Important Notice</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p><strong>Warning:</strong> You can only submit your daily sales <strong>ONCE per day</strong>. Please ensure all your sales for today are completed before clicking submit. Once submitted, you cannot add more sales to today's report.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <form method="POST" action="{% url 'pos_daily_sales_submit' %}">
             {% csrf_token %}
             <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Submit Pending Sales to Manager
             </button>
         </form>
+        {% else %}
+        <div class="p-4 bg-gray-50 border border-gray-200 rounded-md">
+            <p class="text-sm text-gray-600">No pending sales to submit. Make a sale at the POS first!</p>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-        <p class="text-sm text-yellow-800">No pending sales to submit. Make a sale at the POS first!</p>
-    </div>
-    {% endif %}
 
     <!-- Submissions History Table -->
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -94,4 +125,5 @@
     </div>
 </div>
 {% endblock %}
+
 
